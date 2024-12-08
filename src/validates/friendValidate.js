@@ -71,8 +71,8 @@ export default {
     authenFilter: (req, res, next) => {
 
         console.log('validate authenFilter');
-        const userId = req.auth.userId;
-        console.log("iddd", req.auth.userId);
+
+        // console.log("iddd", req.auth.userId);
 
         const { filter, sort, range, attributes } = req.query;
 
@@ -86,6 +86,7 @@ export default {
         res.locals.attributes = attributes || null;
 
         if (filter) {
+            const userId = req.auth.userId;
             const { userId, name } = JSON.parse(filter);
 
             const filterData = { userId, name };
