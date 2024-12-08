@@ -1,7 +1,5 @@
 import { Router } from 'express';
 
-// NOTE: ADD BY TRINH MINH HIEU
-
 import currentUserRoutes from './routes/currentUserRoutes';
 
 import districtsRoutes from './routes/districtsRoutes';
@@ -16,18 +14,12 @@ import menuPositionsRoutes from './routes/menuPositionsRoutes';
 
 import productsRoutes from './routes/productsRoutes';
 import ordersRoutes from './routes/orderRoutes';
+import friendRoutes from './routes/friendRoutes';
+import locationHistoriesRoutes from './routes/locationHistoriesRoutes';
 
-// TODO
 
 const router = Router();
 
-/**
- * GET /swagger.json
- */
-
-/**
- * GET /api
- */
 router.get('/', (req, res) => {
   res.json({
     app: req.app.locals.title,
@@ -52,5 +44,9 @@ router.use('/c/menuPositions', menuPositionsRoutes);
 
 router.use('/c/products', productsRoutes);
 router.use('/c/orders', ordersRoutes);
+
+
+router.use('/c/friend', friendRoutes);
+router.use('/c/location', locationHistoriesRoutes);
 
 export default router;

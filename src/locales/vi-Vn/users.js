@@ -9,6 +9,7 @@ export default {
   'api.users.parentId': 'Id cha',
   'api.users.dateCreated': 'Ngày tạo',
   'api.users.dateExpire': 'Ngày hết hạn tài khoản',
+  'api.users.status': 'Trạng thái tài khoản',
 
   'api.users.address': 'địa chỉ',
   'api.users.dateUpdated': 'Ngày chỉnh sửa',

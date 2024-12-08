@@ -21,7 +21,7 @@ const makeTreeArray = (array, parent, tree, arrTreeId) => {
   tree = typeof tree !== 'undefined' ? tree : [];
   parent = typeof parent !== 'undefined' ? parent : { id: 0 };
 
-  const children = _.filter(array, function(child) {
+  const children = _.filter(array, function (child) {
     // console.log("child.MenuParentID: %o, parent.id", child.MenuParentId, parent.id)
     const ok = Number(child.parentId) === Number(parent.id);
 
@@ -39,7 +39,7 @@ const makeTreeArray = (array, parent, tree, arrTreeId) => {
       parent = _.assign(parent, { dataValues: { ...parent.dataValues, children } });
       // console.log("parent: ", parent.dataValues)
     }
-    _.each(children, function(child) {
+    _.each(children, function (child) {
       makeTreeArray(array, child, tree, arrTreeId);
     });
   }

@@ -1,13 +1,13 @@
 import { User, userGroups } from '../model';
 
 export default async req => {
-  const userName = req.headers.user_name;
+  const username = req.headers.user_name;
 
-  console.log('header userName: ', userName);
-  if (userName === undefined || userName === null || userName === 'null' || userName === '') {
+  console.log('header username: ', username);
+  if (username === undefined || username === null || username === 'null' || username === '') {
     return -1;
   }
-  const dataUser = await User.find({ where: { UserName: userName } });
+  const dataUser = await User.find({ where: { username: username } });
 
   if (dataUser) {
     const datauserGroups = await userGroups.findById(dataUser.dataValues.userGroupsId);

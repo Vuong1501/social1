@@ -142,7 +142,7 @@ export const handleDeleteFileConfigServer = (fileName) => new Promise((resolve, 
     } catch (error) {
       fileExisted = false;
     }
-    if(!fileExisted) {
+    if (!fileExisted) {
       resolve(true);
 
       return;

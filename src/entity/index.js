@@ -38,7 +38,10 @@ const modules = [
   require('./products'),
   require('./orders'),
   require('./orderDetail'),
-  require('./orderStatusHistory')
+  require('./orderStatusHistory'),
+  require('./requestFriend'),
+  require('./friend'),
+  require('./locationHistories'),
 ];
 
 // Initialize models

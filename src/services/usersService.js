@@ -160,8 +160,9 @@ export default {
       try {
         MODELS.findOne(users, {
           where: {
-            username: param.userName
+            username: param.username
           },
+          attributes: ['id', 'name', 'username', 'status', 'password'],
           include: [],
 
           logging: true
@@ -285,15 +286,6 @@ export default {
       const whereFilter = {
         username: entity.username
       };
-      const whereFilterEmail = {
-        email: entity.email || ''
-      };
-
-      const whereFilterMobile = {
-        mobile: entity.mobile || ''
-      };
-      // whereFilter = await filterHelpers.makeStringFilterAbsolutely(['name'], whereFilter, 'users');
-      //  console.log('User register whereFilterEmail: ', whereFilterEmail);
       const infoArr = Array.from(
         await Promise.all([
           preCheckHelpers.createPromiseCheckNew(
@@ -302,18 +294,6 @@ export default {
             TYPE_CHECK.CHECK_DUPLICATE,
             { parent: 'api.users.username' }
           ),
-          preCheckHelpers.createPromiseCheckNew(
-            MODELS.findOne(users, { attributes: ['id'], where: whereFilterEmail }),
-            entity.email ? true : false,
-            TYPE_CHECK.CHECK_DUPLICATE,
-            { parent: 'api.users.email' }
-          ),
-          preCheckHelpers.createPromiseCheckNew(
-            MODELS.findOne(users, { attributes: ['id'], where: whereFilterMobile }),
-            entity.mobile ? true : false,
-            TYPE_CHECK.CHECK_DUPLICATE,
-            { parent: 'api.users.mobile' }
-          )
         ])
       );
 
@@ -521,46 +501,25 @@ export default {
       const foundUser = await MODELS.findOne(users, {
         where: {
           id: param.id
-        }
+        },
+        attributes: ['id', 'name', 'username', 'password', 'dateCreated', 'dateUpdated'],
       });
+      // console.log("foundUser", foundUser);
 
       if (foundUser) {
         const whereFilter = {
           id: { $ne: param.id },
-          username: entity.username || foundUser.username
+          name: entity.name || foundUser.name
         };
-
-        const whereFilterEmail = {
-          id: { $ne: param.id },
-          email: entity.email || foundUser.email
-        };
-
-        const whereFilterMobile = {
-          id: { $ne: param.id },
-          mobile: entity.mobile || foundUser.mobile
-        };
-        // whereFilter = await filterHelpers.makeStringFilterRelatively(['name'], whereFilter, 'users');
 
         const infoArr = Array.from(
           await Promise.all([
             preCheckHelpers.createPromiseCheckNew(
               MODELS.findOne(users, { attributes: ['id'], where: whereFilter, logging: true }),
-              entity.username ? true : false,
+              entity.name ? true : false,
               TYPE_CHECK.CHECK_DUPLICATE,
-              { parent: 'api.users.username' }
+              { parent: 'api.users.name' }
             ),
-            preCheckHelpers.createPromiseCheckNew(
-              MODELS.findOne(users, { attributes: ['id'], where: whereFilterEmail }),
-              entity.email ? true : false,
-              TYPE_CHECK.CHECK_DUPLICATE,
-              { parent: 'api.users.email' }
-            ),
-            preCheckHelpers.createPromiseCheckNew(
-              MODELS.findOne(users, { attributes: ['id'], where: whereFilterMobile }),
-              entity.mobile ? true : false,
-              TYPE_CHECK.CHECK_DUPLICATE,
-              { parent: 'api.users.mobile' }
-            )
           ])
         );
 
@@ -582,13 +541,7 @@ export default {
 
         finnalyResult = await MODELS.findOne(users, {
           where: { id: param.id },
-          include: [
-            {
-              model: userGroups,
-              as: 'userGroups',
-              attributes: ['id', 'userGroupsName']
-            }
-          ]
+          attributes: ['id', 'name', 'username', 'password', 'dateCreated', 'dateUpdated'],
         }).catch(err => {
           throw err;
         });
@@ -606,6 +559,7 @@ export default {
         });
       }
     } catch (error) {
+      console.log("errrrrrrrrrr", error);
       ErrorHelpers.errorThrow(error, 'crudError', 'UserServices');
     }
 

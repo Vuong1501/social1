@@ -17,8 +17,8 @@ import ErrorHelpers from '../helpers/errorHelpers';
 const router = Router();
 
 router.get('/generate/data/login', async (req, res, next) => {
-  const { userName, password } = req.body;
-  const data = await encryptedString(`${userName}|${password}`, 'nbm@2018');
+  const { username, password } = req.body;
+  const data = await encryptedString(`${username}|${password}`, 'nbm@2018');
 
   console.log('data: ', data);
   res.send(data);
@@ -32,14 +32,15 @@ router.get('/generate/data/login', async (req, res, next) => {
  */
 const validateAuthen = (req, res, next) => {
   // console.log("validateAuthen")
-  const { userName, password } = req.body;
+  const { username, password } = req.body;
   const user = {
-    userName,
+    username,
     password
   };
+
   const SCHEMA = {
-    userName: Joi.string()
-      .label('userName')
+    username: Joi.string()
+      .label('username')
       .min(6)
       .max(100)
       .required(),
@@ -72,15 +73,11 @@ const validateAuthen = (req, res, next) => {
 
 router.post('/', validateAuthen, async (req, res, next) => {
   try {
-    console.log('authenticate body: ', req.body);
-    const { userName, password, type } = req.body;
-    // const passEncrypt = 'nbm@2018'
-    // var encrypted = await encryptedString('hethong@gmail.com|AL7h8Jx4r8a8PjS5', passEncrypt)
-    // 1bc2fef9ac032e211503b5690137d9e9addd3bfa8198d5b6f1d06513ec406190c0a7e282d83f648c7f47484b0e68b730
-    // const decrypted = await decryptedString(data, passEncrypt)
+    console.log('authenticate bodyy: ', req.body);
+    const { username, password, type } = req.body;
 
     const user = {
-      userName: userName,
+      username: username,
       password
     };
 
@@ -92,7 +89,7 @@ router.post('/', validateAuthen, async (req, res, next) => {
     let dataToken;
     // let role;
 
-    if (user && user.userName) {
+    if (user && user.username) {
       const userInfo = await userController.find_one(user).catch(err => {
         ErrorHelpers.errorThrow(err, 'userNotFoundError', 'Login', 202);
         /* throw new ApiErrors.BaseError({
@@ -110,7 +107,7 @@ router.post('/', validateAuthen, async (req, res, next) => {
 
       // console.log("dateExpire: ", userInfo.dateExpire);
       // console.log("dateExpire: ", );
-      let conditionExpire = true;
+      // let conditionExpire = true;
 
       if (!userInfo) {
         throw new ApiErrors.BaseError({
@@ -120,14 +117,15 @@ router.post('/', validateAuthen, async (req, res, next) => {
         });
       }
 
-      if (userInfo && userInfo.dateExpire) {
-        console.log('Vao if kiem tra: ');
-        conditionExpire = moment(userInfo.dateExpire).isAfter(moment());
-      }
+      // if (userInfo && userInfo.dateExpire) {
+      //   console.log('Vao if kiem tra: ');
+      //   conditionExpire = moment(userInfo.dateExpire).isAfter(moment());
+      // }
 
-      console.log('conditionExpire: ', conditionExpire);
+      // console.log('conditionExpire: ', conditionExpire);
 
-      if (userInfo && userInfo.status === 1 && conditionExpire) {
+      if (userInfo && userInfo.dataValues.status === 1) {
+        // const passOk = user.password === userInfo.password
         const passOk = await verifyPasswordMd5(user.password, userInfo.password);
 
         console.log('userInfo.password: ', userInfo.password);
@@ -135,10 +133,8 @@ router.post('/', validateAuthen, async (req, res, next) => {
           // console.log("passOk: ", passOk)
           console.log('user: ', user);
           dataToken = {
-            user: userName,
+            user: username,
             userId: userInfo.id,
-
-            userGroupsId: userInfo.userGroupsId
           };
           token = jwt.sign(
             {
@@ -183,7 +179,8 @@ router.post('/', validateAuthen, async (req, res, next) => {
             name: 'Login'
           });
         }
-      } else {
+      }
+      else {
         console.log('a');
         if (userInfo.status !== 1) {
           throw new ApiErrors.BaseError({
@@ -191,13 +188,14 @@ router.post('/', validateAuthen, async (req, res, next) => {
             type: 'userInactiveError',
             name: 'Login'
           });
-        } else if (!conditionExpire) {
-          throw new ApiErrors.BaseError({
-            statusCode: 200,
-            type: 'userExpireError',
-            name: 'Login'
-          });
         }
+        // else if (!conditionExpire) {
+        //   throw new ApiErrors.BaseError({
+        //     statusCode: 200,
+        //     type: 'userExpireError',
+        //     name: 'Login'
+        //   });
+        // }
       }
     }
   } catch (error) {

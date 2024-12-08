@@ -168,7 +168,11 @@ export default {
     try {
       recordStartTime.call(req);
       const { id } = req.params;
+
+      // console.log("iddđ", id);
       const entity = res.locals.body;
+      // console.log("entityyyyy", entity);
+      // console.log("authhhh", req.auth);
       const param = { id, entity, auth: req.auth };
 
       usersService

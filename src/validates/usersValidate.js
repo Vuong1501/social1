@@ -4,8 +4,12 @@ import viMessage from '../locales/vi';
 import regexPattern from '../utils/regexPattern';
 import { parseSort } from '../utils/helper';
 
-// mobile, userGroupsId, address,  status, dateUpdated, dateCreated, dateExpire
 const DEFAULT_SCHEMA = {
+  name: ValidateJoi.createSchemaProp({
+    string: noArguments,
+    label: viMessage['api.users.fullname'],
+    allow: null
+  }),
   username: ValidateJoi.createSchemaProp({
     string: noArguments,
     label: viMessage['api.users.username'],
@@ -16,59 +20,14 @@ const DEFAULT_SCHEMA = {
     label: viMessage['api.users.password'],
     allow: null
   }),
-  image: ValidateJoi.createSchemaProp({
-    object: noArguments,
-    label: viMessage.image,
-    allow: null
-  }),
-  fullname: ValidateJoi.createSchemaProp({
-    string: noArguments,
-    label: viMessage['api.users.fullname'],
-    allow: null
-  }),
-  usersCode: ValidateJoi.createSchemaProp({
-    string: noArguments,
-    label: viMessage['api.users.usersCode'],
-    allow: [null, '']
-  }),
-  email: ValidateJoi.createSchemaProp({
-    string: noArguments,
-    label: viMessage['api.users.email'],
-    allow: ['', null]
-  }),
-  mobile: ValidateJoi.createSchemaProp({
-    string: noArguments,
-    label: viMessage['api.users.mobile'],
-    allow: ['', null]
-  }),
-
-  address: ValidateJoi.createSchemaProp({
-    string: noArguments,
-    label: viMessage['api.users.address'],
-    allow: ['', null]
-  }),
-  userGroupsId: ValidateJoi.createSchemaProp({
-    number: noArguments,
-    label: viMessage.userGroupsId
-  }),
-
-  status: ValidateJoi.createSchemaProp({
-    number: noArguments,
-    label: viMessage.status,
-    allow: null
+  dateCreated: ValidateJoi.createSchemaProp({
+    date: noArguments,
+    label: viMessage['api.users.dateCreated']
   }),
   dateUpdated: ValidateJoi.createSchemaProp({
     date: noArguments,
     label: viMessage['api.users.dateUpdated']
   }),
-  dateCreated: ValidateJoi.createSchemaProp({
-    date: noArguments,
-    label: viMessage['api.users.dateCreated']
-  }),
-  dateExpire: ValidateJoi.createSchemaProp({
-    date: noArguments,
-    label: viMessage['api.users.dateExpire']
-  })
 };
 
 export default {
@@ -76,35 +35,22 @@ export default {
     console.log('validate authenCreate');
 
     const {
+      name,
       username,
-      image,
       password,
-      fullname,
-      email,
-      mobile,
-      userGroupsId,
-      address,
-
-      status,
-      dateExpire
     } = req.body;
 
     const user = {
+      name,
       username,
-      image,
       password,
-      fullname,
-      email,
-      mobile,
-      userGroupsId,
-      address,
-
-      status,
-      dateExpire
     };
 
     const SCHEMA = Object.assign(
       ValidateJoi.assignSchema(DEFAULT_SCHEMA, {
+        name: {
+          max: 100
+        },
         username: {
           regex: /\w/i,
           max: 50,
@@ -114,26 +60,8 @@ export default {
           min: 6,
           max: 100
         },
-        fullname: {
-          max: 100
-        },
-        email: {
-          regex: /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i,
-          max: 100
-        },
-        mobile: {
-          regex: /^[0-9]+$/i,
-          max: 15
-        },
-        userGroupsId: {
-          required: noArguments
-        },
-        status: {
-          required: noArguments
-        }
       })
     );
-
     // console.log('input: ', input);
     ValidateJoi.validate(user, SCHEMA)
       .then(data => {
@@ -146,50 +74,19 @@ export default {
     console.log('validate authenUpdate');
 
     const {
-      username,
-      image,
-      password,
-      fullname,
-      email,
-      mobile,
-      userGroupsId,
-      address,
-
-      status,
-      dateExpire
+      name,
     } = req.body;
 
     const user = {
-      username,
-      image,
-      password,
-      fullname,
-      email,
-      mobile,
-      userGroupsId,
-      address,
-
-      status,
-      dateExpire
+      name,
     };
 
     const SCHEMA = Object.assign(
       ValidateJoi.assignSchema(DEFAULT_SCHEMA, {
-        username: {
+        name: {
           regex: /\w/i,
           max: 100
         },
-        fullname: {
-          max: 100
-        },
-        email: {
-          regex: /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/i,
-          max: 100
-        },
-        mobile: {
-          regex: /^[0-9]+$/i,
-          max: 15
-        }
       })
     );
 

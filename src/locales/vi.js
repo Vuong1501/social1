@@ -6,6 +6,7 @@ import provinces from './vi-Vn/provinces';
 import districts from './vi-Vn/districts';
 import product from './vi-Vn/product';
 import order from './vi-Vn/order';
+import location from './vi-Vn/location';
 
 export default {
   menus: 'Menu',
@@ -19,6 +20,7 @@ export default {
   menuPositions: 'Vị trí menus',
   notes: 'Ghi chú',
   openShedules: 'Lịch mở cửa',
+  location: 'Địa điểm',
 
   type: 'Kiểu danh mục',
 
@@ -60,5 +62,6 @@ export default {
   ...provinces,
   ...districts,
   ...product,
-  ...order
+  ...order,
+  ...location
 };

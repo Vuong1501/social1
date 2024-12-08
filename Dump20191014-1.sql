@@ -14956,7 +14956,7 @@ CREATE DEFINER = `root` @`%` PROCEDURE `tblroleTemplateDetail_GetAllByUser_NewCm
 ) BEGIN if(GroupUserID > 0) then
 SELECT CONCAT(t1.id, '-', GroupUserID) as id,
 	GroupUserID as GroupUserId,
-	GroupUserName,
+	Groupusername,
 	t1.sites_id as SiteId,
 	t1.id as MenuId,
 	t1.name as MenuName,
@@ -14978,7 +14978,7 @@ FROM (
 					where group_users.id = GroupUserID
 				),
 				''
-			) GroupUserName,
+			) Groupusername,
 			IFNULL(
 				(
 					select name

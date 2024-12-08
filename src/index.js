@@ -224,10 +224,7 @@ process.on('uncaughtException', err => {
 
 export default app;
 
-// hủy thì số lượng về ban đầu(xong)
-// khi completed hoặc cancelled thì không được update ngược lại các trạng thái khác, làm trong service(xong)
-// làm thêm get one trong orders (xong)
-// khóa ngoại mềm, khóa ngoại cứng là ở trong mysql
+
 
 
 
