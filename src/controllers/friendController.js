@@ -84,14 +84,20 @@ export default {
 
         try {
             const { sort, range, filter, attributes } = res.locals;
+            // console.log("useriddddd", req.auth.userId);
+            const userId = req.auth.userId;
+            // console.log("userid", filter.userId);
             const param = {
                 sort,
                 range,
                 filter,
-                // userId,
-                auth: req.auth,
+                userId,
+                // auth: req.auth,
                 attributes
             };
+            // console.log("param", param);
+
+            // console.log("req.auth", req.auth);
 
             friendService
                 .get_list(param)

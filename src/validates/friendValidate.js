@@ -75,35 +75,38 @@ export default {
         // console.log("iddd", req.auth.userId);
 
         const { filter, sort, range, attributes } = req.query;
+        // const userId = req.auth.userId;
+        // console.log("userId", userId);
 
-        console.log("filter", filter);
-        console.log("sort", sort);
-        console.log("range", range);
-        console.log("attributes", attributes);
+        // console.log("filter", filter);
+        // console.log("sort", sort);
+        // console.log("range", range);
+        // console.log("attributes", attributes);
 
         res.locals.sort = parseSort(sort);
         res.locals.range = range ? JSON.parse(range) : [0, 49];
         res.locals.attributes = attributes || null;
 
         if (filter) {
-            const userId = req.auth.userId;
-            const { userId, name } = JSON.parse(filter);
 
-            const filterData = { userId, name };
+            // console.log("userId", userId);
+            // const userId = req.auth.userId;
+            const { name } = JSON.parse(filter);
+
+            const filterData = { name };
 
             console.log('filterData', filterData);
 
             const SCHEMA = {
-                ...DEFAULT_SCHEMA,
-                userId: ValidateJoi.createSchemaProp({
-                    string: noArguments,
-                    label: 'User ID',
-                    regex: regexPattern.listIds,
-                }),
+                // ...DEFAULT_SCHEMA,
+                // userId: ValidateJoi.createSchemaProp({
+                //     number: noArguments,
+                //     label: 'User ID',
+                //     regex: regexPattern.listIds,
+                // }),
                 name: ValidateJoi.createSchemaProp({
                     string: noArguments,
                     label: 'Name',
-                    regex: regexPattern.name,
                 }),
             };
 

@@ -113,39 +113,26 @@ export default {
     get_list: async param => {
         try {
 
-            const { sort, range, filter, userId, attributes } = param;
-            // console.log("userId", userId);
-            // const userId = param;
-            // const whereClause = filter && Object.keys(filter).length
-            //     ? {
-            //         [Op.and]: [
-            //             filter.userId ? { user1_id: filter.userId } : null,
-            //             filter.name ? { name: { [Op.like]: `%${filter.name}%` } } : null
-            //         ].filter(Boolean) // Loại bỏ giá trị null
-            //     }
-            //     : {}; // Nếu filter rỗng, lấy tất cả
+            const { sort, range, filter, userId } = param;
+            ;
             const whereClause = {
                 [Op.and]: [
                     userId ? { [Op.or]: [{ user1_id: userId }, { user2_id: userId }] } : null,
-                    filter && filter.name ? { name: { [Op.like]: `%${filter.name}%` } } : null,
                     { [Op.or]: [{ user1_id: { [Op.ne]: userId } }, { user2_id: { [Op.ne]: userId } }] } // Loại trừ userId
                 ].filter(Boolean)
             };
 
-            console.log("whereClause:", JSON.stringify(whereClause, null, 2));
+            // console.log("whereClause:", JSON.stringify(whereClause, null, 2));
             const friends = await friend.findAll({
                 where: whereClause,
-                //{
-                //     [Op.or]: [
-                //         { user1_id: userId },
-                //         { user2_id: userId }
-                //     ]
-                // },
                 include: [
                     {
                         model: users,
                         as: 'user1',
                         attributes: ['id', 'name'],
+                        where: filter && filter.name ? {
+                            name: { [Op.like]: `%${filter.name}%` }
+                        } : undefined,
                         include: [
                             {
                                 model: locationHistories,
@@ -171,95 +158,41 @@ export default {
                 limit: range[1] - range[0] + 1,
                 offset: range[0]
             });
+            console.log("Total friends fetched:", friends.length);
 
-            console.log("friends:", JSON.stringify(friends, null, 2));
+            // console.log("friends:", JSON.stringify(friends, null, 2));
 
-            // const friendList = friends
-            //     .map(friend => {
-            //         if (friend.user1_id === userId) {
-            //             return {
-            //                 id: friend.user2_id,
-            //                 name: friend.user2.name,
-            //                 locationHistories: friend.user2.locationHistories
-            //             };
-            //         }
-            //         // Kiểm tra nếu userId nằm ở user2_id, lấy user1
-            //         if (friend.user2_id === userId) {
-            //             return {
-            //                 id: friend.user1_id,
-            //                 name: friend.user1.name,
-            //                 locationHistories: friend.user1.locationHistories
-            //             };
-            //         }
-            //         // Trường hợp không liên quan đến userId
-            //         return null;
-            //     });
+            const friendList = friends
+                .map(friend => {
+                    if (friend.user1_id === userId) {
+                        return {
+                            id: friend.user2_id,
+                            name: friend.user2.name,
+                            locationHistories: friend.user2.locationHistories
+                        };
+                    }
+                    // Kiểm tra nếu userId nằm ở user2_id, lấy user1
+                    if (friend.user2_id === userId) {
+                        return {
+                            id: friend.user1_id,
+                            name: friend.user1.name,
+                            locationHistories: friend.user1.locationHistories
+                        };
+                    }
+                    return null;
+                });
 
-            // console.log("friendList:", JSON.stringify(friendList, null, 2));
-            // // console.log("friendList", friendList);
+            // Loại bỏ các cặp trùng lặp (dựa trên id)
+            const uniqueFriendList = Array.from(
+                new Map(friendList.map(friend => [friend.id, friend])).values()
+            );
 
-            // // Loại bỏ các cặp trùng lặp (dựa trên id)
-            // const uniqueFriendList = Array.from(
-            //     new Map(friendList.map(friend => [friend.id, friend])).values()
-            // );
-
-            // // console.log("uniqueFriendList:", uniqueFriendList);
-            // return uniqueFriendList;
-            return friends.map(friend => ({
-                id: friend.user1_id === userId ? friend.user2_id : friend.user1_id,
-                name: friend.user1_id === userId ? friend.user2.name : friend.user1.name,
-                locationHistories: friend.user1_id === userId ? friend.user2.locationHistories : friend.user1.locationHistories
-            }));
+            return uniqueFriendList;
 
         } catch (error) {
             console.log("errrrrrrrr", error);
             throw new Error('Error fetching friends: ' + error.message);
         }
-
-        // return new Promise((resolve, reject) => {
-        //     // Câu lệnh SQL để lấy danh sách bạn bè của userId
-        //     const sqlQuery = `
-        //       SELECT 
-        //         f.user1_id AS friend_id, 
-        //         u1.userName AS friend_userName,
-        //         u1.fullName AS friend_fullName
-        //       FROM friend f
-        //       JOIN users u1 ON f.user1_id = u1.id
-        //       WHERE f.user2_id = 1
-        //       UNION
-        //       SELECT 
-        //         f.user2_id AS friend_id, 
-        //         u2.userName AS friend_userName,
-        //         u2.fullName AS friend_fullName
-        //       FROM friend f
-        //       JOIN users u2 ON f.user2_id = u2.id
-        //       WHERE f.user1_id = 1;
-        //     `;
-
-        //     console.log("sqlQuery:", sqlQuery);
-
-        //     // Thực thi câu lệnh SQL với userId được truyền vào
-        //     sequelize.query(sqlQuery, {
-        //         replacements: { userId },  // Truyền tham số vào câu lệnh SQL
-        //     })
-        //         .then(friends => {
-        //             if (!friends || friends.length === 0) {
-        //                 return reject(new ApiErrors.BaseError({
-        //                     statusCode: 404,
-        //                     type: 'friendsNotFound',
-        //                     message: 'No friends found for this user.'
-        //                 }));
-        //             }
-        //             resolve(friends);
-        //         })
-        //         .catch(error => {
-        //             reject(new ApiErrors.BaseError({
-        //                 statusCode: 500,
-        //                 type: 'serverError',
-        //                 message: 'Error fetching friends: ' + error.message
-        //             }));
-        //         });
-        // });
     },
 
 }
