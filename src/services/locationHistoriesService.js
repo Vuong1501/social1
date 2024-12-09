@@ -11,35 +11,39 @@ import order from '../locales/vi-Vn/order';
 const { users, sequelize, locationHistories } = models;
 
 export default {
+  // sửa lại logic,dùng model, count trước, count >= 10 thì mới findone và xóa
+  createLocation: async (param) => {
+    const { userId, location, dateCreated } = param;
 
-    createLocation: async param => {
-        const { userId, location, dateCreated } = param;
+    // console.log("param", param);
 
-        // console.log("param", param);
+    // lấy ra tất cả bản ghi về location
+    const userLocations = await locationHistories.count({
+      where: { userId: userId },
+      order: [['dateCreated', 'ASC']],
+    });
 
-        // lấy ra tất cả bản ghi về location
-        const userLocations = await locationHistories.findAll({
-            where: { userId: userId },
-            order: [['dateCreated', 'ASC']]
-        });
+    if (userLocations.length >= 10) {
+      const userLocations = await locationHistories.count({
+        where: { userId: userId },
+        order: [['dateCreated', 'ASC']],
+      });
 
-        if (userLocations.length >= 10) {
-            const oldest = userLocations[0];
-            // console.log("oldest", oldest);
+      const oldest = userLocations[0];
+      // console.log("oldest", oldest);
 
-            await locationHistories.destroy({
-                where: { id: oldest.id }
-            })
-        };
-
-        // tạo location mới
-        const newLocation = await locationHistories.create({
-            userId: userId,
-            location: location,
-            dateCreated: dateCreated
-        });
-
-        return newLocation;
-
+      await locationHistories.destroy({
+        where: { id: oldest.id },
+      });
     }
-}
+
+    // tạo location mới
+    const newLocation = await locationHistories.create({
+      userId: userId,
+      location: location,
+      dateCreated: dateCreated,
+    });
+
+    return newLocation;
+  },
+};
