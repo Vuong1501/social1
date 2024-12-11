@@ -1,214 +1,106 @@
+
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
 import Joi from '../utils/joi/lib';
-import moment from 'moment-timezone';
 import CONFIG from '../config';
 import validate from '../utils/validate';
-import userController from '../controllers/usersController';
-import { encryptedString, verifyPasswordMd5 } from '../utils/crypto';
+// import userController from '../controllers/usersController';
+import { verifyPasswordMd5 } from '../utils/crypto';
+import { md5 } from '../utils/crypto';
 import * as ApiErrors from '../errors';
 import ErrorHelpers from '../helpers/errorHelpers';
-// import Model from '../models/models';
-// import models from '../entity/index';
-// const {
-//   /* sequelize, Op, users, */
 
-// } = models;
+/////
+import MODELS from '../models/models';
+import models from '../entity/index';
+const { users } = models;
+
 const router = Router();
 
-router.get('/generate/data/login', async (req, res, next) => {
-  const { username, password } = req.body;
-  const data = await encryptedString(`${username}|${password}`, 'nbm@2018');
-
-  console.log('data: ', data);
-  res.send(data);
-});
-
-/**
- *
- * @param {*} req
- * @param {*} res
- * @param {*} next
- */
+// Middleware validate
 const validateAuthen = (req, res, next) => {
-  // console.log("validateAuthen")
   const { username, password } = req.body;
-  const user = {
-    username,
-    password
-  };
-
+  const user = { username, password };
   const SCHEMA = {
-    username: Joi.string()
-      .label('username')
-      .min(6)
-      .max(100)
-      .required(),
-    password: Joi.string()
-      .label('password')
-      .required()
+    username: Joi.string().min(6).max(100).required(),
+    password: Joi.string().required(),
   };
 
-  // console.log('input: ', input);
   validate(user, SCHEMA)
     .then(() => next())
-    .catch(err =>
-      next(
-        new ApiErrors.BaseError({
-          statusCode: 400,
-          type: 'loginError',
-          error: err,
-          name: 'Login'
-        })
-      )
-    );
+    .catch(err => next(new ApiErrors.BaseError({ statusCode: 400, type: 'loginError', error: err, name: 'Login' })));
 };
 
-/**
- *
- * @param {*} req
- * @param {*} res
- * @param {*} next
- */
-
+// Đăng nhập hoặc đăng ký
 router.post('/', validateAuthen, async (req, res, next) => {
   try {
-    console.log('authenticate bodyy: ', req.body);
-    const { username, password, type } = req.body;
+    const { name, username, password } = req.body;
 
-    const user = {
-      username: username,
-      password
-    };
-
-    // if (decrypted && decrypted.split('|').length === 2) {
-    //   user = { user: decrypted.split('|')[0], password: decrypted.split('|')[1] }
-    // }
-
+    console.log("name", name);
+    console.log("username", username);
+    console.log("password", password);
     let token;
     let dataToken;
-    // let role;
 
-    if (user && user.username) {
-      const userInfo = await userController.find_one(user).catch(err => {
-        ErrorHelpers.errorThrow(err, 'userNotFoundError', 'Login', 202);
-        /* throw new ApiErrors.BaseError({
-          statusCode: 200,
-          type: 'userNotFoundError',
-          error: err,
-          name: 'Login'
-        }) */
+    // Tìm thông tin người dùng theo username
+    const userInfo = await MODELS.findOne(users, { where: { username: username } }).catch(err => {
+      ErrorHelpers.errorThrow(err, 'userNotFoundError', 'Login', 202);
+    });
 
-        // return;
-      });
 
-      console.log('fdfds: ', userInfo);
-      // // const conditionExpire = moment(userInfo.dateExpire).format('YYYY-MM-DD HH:mm:ss') > Date.now() ?  true : false;
+    // console.log("userInfo", userInfo);
 
-      // console.log("dateExpire: ", userInfo.dateExpire);
-      // console.log("dateExpire: ", );
-      // let conditionExpire = true;
+    if (!userInfo) {
+      // Nếu người dùng chưa tồn tại, tạo tài khoản mới
+      const passMd5 = md5(password);
+      const newUser = await MODELS.create(users, { name: name, username: username, password: passMd5 });
 
-      if (!userInfo) {
-        throw new ApiErrors.BaseError({
-          statusCode: 200,
-          type: 'userNotFoundError',
-          name: 'Login'
-        });
-      }
+      // console.log("newUser", newUser);
 
-      // if (userInfo && userInfo.dateExpire) {
-      //   console.log('Vao if kiem tra: ');
-      //   conditionExpire = moment(userInfo.dateExpire).isAfter(moment());
-      // }
+      dataToken = {
+        user: username,
+        // userId: newUser.id,
+        name: newUser.name,
+      };
 
-      // console.log('conditionExpire: ', conditionExpire);
-
-      if (userInfo && userInfo.dataValues.status === 1) {
-        // const passOk = user.password === userInfo.password
-        const passOk = await verifyPasswordMd5(user.password, userInfo.password);
-
-        console.log('userInfo.password: ', userInfo.password);
-        if (passOk) {
-          // console.log("passOk: ", passOk)
-          console.log('user: ', user);
-          dataToken = {
-            user: username,
-            userId: userInfo.id,
-          };
-          token = jwt.sign(
-            {
-              ...dataToken
-            },
-            process.env.JWT_SECRET,
-            {
-              expiresIn: `${CONFIG.TOKEN_LOGIN_EXPIRE}`
-              // algorithm: 'RS256'
-            }
-          );
-          // role = [...userInfo.RoleDetails];
-          // console.log("token", token)
-
-          if (token) {
-            res.status(200).json({
-              success: true,
-              status: 'ok',
-              token,
-              role: [],
-              type,
-              currentAuthority: [],
-
-              ...dataToken
-            });
-          } else {
-            res.status(200).json({
-              success: false,
-              message: 'Đăng nhập thất bại',
-              status: 'error',
-              token: null,
-              role: {},
-              type,
-              currentAuthority: 'guest'
-            });
-          }
-        } else {
-          // next(new Error("Mật khẩu không đúng!"));
-          throw new ApiErrors.BaseError({
-            statusCode: 200,
-            type: 'loginPassError',
-            name: 'Login'
-          });
-        }
-      }
-      else {
-        console.log('a');
-        if (userInfo.status !== 1) {
-          throw new ApiErrors.BaseError({
-            statusCode: 200,
-            type: 'userInactiveError',
-            name: 'Login'
-          });
-        }
-        // else if (!conditionExpire) {
-        //   throw new ApiErrors.BaseError({
-        //     statusCode: 200,
-        //     type: 'userExpireError',
-        //     name: 'Login'
-        //   });
-        // }
-      }
+      token = jwt.sign(dataToken, process.env.JWT_SECRET, { expiresIn: `${CONFIG.TOKEN_LOGIN_EXPIRE}` });
+      return res.status(201).json({ success: true, message: 'Đăng ký thành công', token, ...dataToken });
     }
+
+    // Kiểm tra mật khẩu nếu người dùng đã tồn tại
+    const passOk = await verifyPasswordMd5(password, userInfo.password);
+    if (!passOk) {
+      throw new ApiErrors.BaseError({ statusCode: 200, type: 'loginPassError', name: 'Login' });
+    }
+
+
+    // console.log("nameeeee", name);
+    // console.log("userInfo.name", userInfo.name);
+    // console.log("userInfo.id", userInfo.id);
+    // Cập nhật thông tin nếu người dùng thay đổi fullname
+    if (name && name !== userInfo.name) {
+      await MODELS.update(users, { name: name }, { where: { id: userInfo.id } });
+    }
+
+    dataToken = {
+      user: username,
+      userId: userInfo.id,
+      name: userInfo.name,
+    };
+
+    token = jwt.sign(dataToken, process.env.JWT_SECRET, { expiresIn: `${CONFIG.TOKEN_LOGIN_EXPIRE}` });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Đăng nhập thành công',
+      token,
+      ...dataToken,
+    });
+
   } catch (error) {
-    // throw new ApiErrors.BaseError({
-    //   statusCode: 200,
-    //   type: 'loginError',
-    //   error,
-    //   name: 'Login'
-    // })
-    // console.log(error)
     next(error);
-    // res.status(200).send(new Error(error).message)
   }
 });
 
 export default router;
+

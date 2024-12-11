@@ -73,40 +73,37 @@ export default {
     get_list: (req, res, next) => {
         recordStartTime.call(req);
 
-        // console.log('req.auth2', req.auth)
-        // const { userId } = req.params;
-        // console.log("userId", userId);
-        // const param = Number(req.auth.userId);
-        // console.log("paramparam:", param);
-
-        // console.log('userId', userId);
-        // console.log('userId', typeof (userId));
-
         try {
             const { sort, range, filter, attributes } = res.locals;
-            // console.log("useriddddd", req.auth.userId);
+
             const userId = req.auth.userId;
-            // console.log("userid", filter.userId);
+
             const param = {
                 sort,
                 range,
                 filter,
                 userId,
-                // auth: req.auth,
                 attributes
             };
-            // console.log("param", param);
-
-            // console.log("req.auth", req.auth);
 
             friendService
                 .get_list(param)
-                .then(data => {
-                    res.status(200).json({
+                .then((data) => {
+                    const dataOutput = {
+                        result: {
+                            list: data.data,
+                            pagination: {
+                                current: data.page,
+                                pageSize: data.perPage,
+                                total: data.total
+                            }
+                        },
                         success: true,
-                        message: 'Danh sách bạn bè của người dùng',
-                        data: data
-                    });
+                        errors: [],
+                        messages: []
+                    };
+                    res.header('Content-Range', `sclSocialAccounts ${range}/${data.count}`);
+                    res.send(dataOutput);
                 })
                 .catch(error => {
                     next(error);
@@ -116,5 +113,8 @@ export default {
             next(error);
         }
     },
+
+
+
 
 }

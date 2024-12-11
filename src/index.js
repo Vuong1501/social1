@@ -20,35 +20,11 @@ import webRouter from './webRouter';
 import json from './middlewares/json';
 import logger, { logStream } from './utils/logger';
 import * as errorHandler from './middlewares/errorHandler';
-// import routePassword from './routes/genneratePass';
+
 import authRoutes from './routes/authRoutes';
 
-// import CONFIG from './config';
-
-// import moment from 'moment';
-// import * as Sentry from '@sentry/node';
-// import * as apm from 'elastic-apm-node/start';
-// import morgan from './utils/morgan';
 
 console.log('ROOT_DIR: ', process.cwd());
-// Add this to the VERY top of the first file loaded in your app
-/* const apm = require('elastic-apm-node').start({
-  // Override service name from package.json
-  // Allowed characters: a-z, A-Z, 0-9, -, _, and space
-  serviceName: process.env.ELASTIC_APM_SERVICE_NAME,
-
-  // Use if APM Server requires a token
-  secretToken: process.env.ELASTIC_APM_SECRET_TOKEN,
-
-  // Set custom APM Server URL (default: http://localhost:8200)
-  serverUrl: process.env.ELASTIC_APM_SERVER_URL,
-  // logger: logger
-  // active: process.env.NODE_ENV === 'production'
-}) */
-
-// Initialize Sentry
-// https://docs.sentry.io/platforms/node/express/
-// Sentry.init({ dsn: process.env.SENTRY_DSN });
 
 const app = express();
 
@@ -64,9 +40,6 @@ app.set('views', path.join(__dirname, '/views'));
 app.locals.title = process.env.WEB_NAME;
 app.locals.version = process.env.APP_VERSION || '1.0.0';
 
-// This request handler must be the first middleware on the app
-// app.use(Sentry.Handlers.requestHandler());
-// app.use(_rethinkDb.connectionMiddleware());
 app.use(
   cors({
     origin: '*',
@@ -91,7 +64,7 @@ app.use(
 app.use(helmet());
 app.use(compression());
 app.use(morgan('short', { stream: logStream }));
-// app.use(bodyParser.json());
+
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(errorHandler.bodyParser);
@@ -103,37 +76,19 @@ app.get('/socket', (req, res) => {
 app.get('/zalo', (req, res) => {
   res.render('zalo');
 });
-// Swagger UI
-// Workaround for changing the default URL in swagger.json
-// https://github.com/swagger-api/swagger-ui/issues/4624
-
-
-
-// const multer = require('multer')
-
-/* BEGIN RICH FILE MANAGER */
-// const filemanager = require("rich-filemanager-node");
-// // eslint-disable-next-line import/order
-// const configRichFileManager = require('./filemanager.config.json')
-
-// app.use('/filemanager', filemanager(`${config.filemanager}`, configRichFileManager));
-/* END RICH FILE MANAGER */
-
-/* JWT authentication middleware authenticates */
 app.use(
   expressjwt({
     secret: process.env.JWT_SECRET,
     requestProperty: 'auth',
     credentialsRequired: false,
     algorithms: ['HS256'],
-    // eslint-disable-next-line require-jsdoc
     getToken: function fromHeaderOrQuerystring(req) {
       if (req.headers['x-auth-key']) {
         return req.headers['x-auth-key'];
       }
       return null;
     },
-  }).unless({ path: ['/authenticate'] })
+  }).unless({ path: ['/authenticate',] })
 );
 
 
@@ -174,7 +129,7 @@ authRoutes(app);
 
 // API Routes
 app.use('/api', routes);
-app.use('/web', webRouter);
+// app.use('/web', webRouter);
 // This error handler must be before any other error middleware
 // app.use(Sentry.Handlers.errorHandler());
 

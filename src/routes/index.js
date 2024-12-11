@@ -8,8 +8,3 @@ router.get('/', function (req, res, next) {
 
 module.exports = router;
 
-
-
-
-// khi thêm sản phẩm phải là số dương và dạng number
-// khi đặt hàng phải trừ đi số lượng tồn kho

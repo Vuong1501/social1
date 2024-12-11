@@ -8,7 +8,7 @@ import menusRoutes from './routes/menusRoutes';
 import userGroupRolesRoutes from './routes/userGroupRolesRoutes';
 
 import userGroupsRoutes from './routes/userGroupsRoutes';
-import usersRoutes from './routes/usersRoutes';
+// import usersRoutes from './routes/usersRoutes';
 import provincesRoutes from './routes/provincesRoutes';
 import menuPositionsRoutes from './routes/menuPositionsRoutes';
 
@@ -36,7 +36,7 @@ router.use('/c/menus', menusRoutes);
 router.use('/c/provinces', provincesRoutes);
 
 router.use('/c/userGroups', userGroupsRoutes);
-router.use('/c/users', usersRoutes);
+// router.use('/c/users', usersRoutes);
 router.use('/c/userGroupRoles', userGroupRolesRoutes);
 //  END
 router.use('/c/currentUser', currentUserRoutes);

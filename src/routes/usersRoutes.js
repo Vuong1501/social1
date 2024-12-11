@@ -1,25 +1,26 @@
-import { Router } from 'express';
-
-import usersController from '../controllers/usersController';
-import usersValidate from '../validates/usersValidate';
-// import { findUser, userValidator } from '../validators/userValidator';
-
-const router = Router();
-
-// router.get('/', usersValidate.authenFilter, usersController.get_list);
-// // router.get("/export", usersValidate.authenFilter, usersController.get_list_export)
-// router.get('/:id', usersController.get_one);
-// router.post('/', usersValidate.authenCreate, usersController.create);
+// import { Router } from 'express';
 
 
+// import usersController from '../controllers/usersController';
+// import usersValidate from '../validates/usersValidate';
+// // import { findUser, userValidator } from '../validators/userValidator';
 
-router.put('/updateName/:id', usersValidate.authenUpdate, usersController.update);
+// const router = Router();
 
-// router.put('/update-status/:id', usersValidate.authenUpdate_status, usersController.update_status);
-// router.put('/changePass/:id', usersController.changePass);
-// router.put('/resetPass/:id', usersController.resetPass);
-// router.post('/requestForgetPass', usersValidate.authenRequestForgetPass, usersController.requestForgetPass);
-// router.post('/changePassByOpt', usersController.changePassByOtp);
-// router.post('/accessOtp', usersController.accessOtp);
+// // router.get('/', usersValidate.authenFilter, usersController.get_list);
+// // // router.get("/export", usersValidate.authenFilter, usersController.get_list_export)
+// // router.get('/:id', usersController.get_one);
+// // router.post('/', usersValidate.authenCreate, usersController.create);
 
-export default router;
+// // router.post('/', usersValidate.authenCreate, usersController.get_list);
+
+// // router.post('/', usersValidate.validateAll, usersController.login);
+
+// // router.put('/update-status/:id', usersValidate.authenUpdate_status, usersController.update_status);
+// // router.put('/changePass/:id', usersController.changePass);
+// // router.put('/resetPass/:id', usersController.resetPass);
+// // router.post('/requestForgetPass', usersValidate.authenRequestForgetPass, usersController.requestForgetPass);
+// // router.post('/changePassByOpt', usersController.changePassByOtp);
+// // router.post('/accessOtp', usersController.accessOtp);
+
+// export default router;

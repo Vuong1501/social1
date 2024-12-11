@@ -1,3 +1,5 @@
 1. Các file code,fix lỗi đỏ (error prettiter) 
 2. api đăng ký, đăng  nhập, sửa tên, gộp làm 1
 3. làm lại logic handleRequestFriend 
+4. sử dụng tất MODEL.
+5. đọc hiểu các model
